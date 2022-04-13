@@ -1,70 +1,82 @@
-import { baseUrl, handleHttpError, reportSuccess, getToken } from "../utils";
+import {
+  baseUrl,
+  userCode,
+  userEmail,
+  userPassword,
+  handleHttpError,
+  reportSuccess,
+} from "../utils";
+
 import {
   savetoLF,
   removeFromLF,
   getFromLF,
 } from "../../store/storage/localForage";
 
-const axios = require("axios").default;
+import axios from "axios";
 
-const login = async (payLoad) => {
+const login = async () => {
   try {
-    const response = await axios.post(`${baseUrl}/auth/login`, {
-      ...payLoad,
+    const response = await axios.post(`${baseUrl}/auth/login/`, {
+      email: userEmail,
+      password: userPassword,
+      code: userCode,
     });
 
-    if (!response.data.data) return { error: response.data.error.message };
+    if (!response.data) {
+      handleHttpError(response.data.error.message);
+      return false;
+    }
 
-    const { refresh, access } = response.data.data;
+    const { refresh, access } = response.data;
 
-    const { token, exp } = tokenData;
+    await removeFromLF("refresh");
+    await removeFromLF("access");
 
-    const userTokens = {
-      accessToken: access,
-      refreshToken: refresh,
-    };
+    await savetoLF("refresh", refresh);
+    await savetoLF("access", access);
 
-    await removeFromLF("token");
-
-    await savetoLF("token", { token, exp });
-
-    await removeFromLF("user");
-
-    await savetoLF("user", user);
-
-    return { user };
+    return true;
   } catch (err) {
     const error =
       err.response.data.error ||
       "An error occurred Login in.Please try again or Contact the System Admin ";
-    return { error: error };
+    handleHttpError(error);
+    return false;
+  }
+};
+
+const refreshToken = async () => {
+  const refresh = await getFromLF("refresh");
+
+  try {
+    const response = await axios.post(`${baseUrl}/auth/login/refresh/`, {
+      refresh,
+    });
+
+    if (!response.data) {
+      handleHttpError(response.data.error.message);
+      return false;
+    }
+
+    await removeFromLF("access");
+
+    const { access } = response.data;
+
+    await savetoLF("access", access);
+
+    return true;
+  } catch (err) {
+    const error =
+      err.response.data.error ||
+      "An error occurred refreshing token.Please try again or Contact the System Admin ";
+    handleHttpError(error);
+    return false;
   }
 };
 
 const logout = async () => {
   await removeFromLF("token");
-  await removeFromLF("user");
 };
 
-const fetchCurrentUser = async () => {
-  try {
-    const user = await getFromLF("user");
-
-    return user;
-  } catch (err) {
-    handleHttpError("Could not get user");
-  }
-};
-
-async function tryLogin() {
-  try {
-    const user = await getFromLF("user");
-    const token = await getToken();
-
-    if (user && token) return { user, token };
-  } catch (error) {
-    return handleHttpError("Could not authenticate User");
-  }
-}
-
-export { login, logout, fetchCurrentUser, tryLogin };
+export { login, refreshToken, logout };

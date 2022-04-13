@@ -1,7 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import authModule from "./modules/auth/index.js";
+import authModule from "./modules/auth";
+import linesModule from "./modules/lines";
 
 import getters from "./getters";
 import mutations from "./mutations";
@@ -18,5 +19,6 @@ export default new Vuex.Store({
   actions,
   modules: {
     auth: authModule,
+    lines: linesModule,
   },
 });

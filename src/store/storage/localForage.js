@@ -1,9 +1,9 @@
 import localForage from "localforage";
 
 localForage.config({
-  name: "abonten",
+  name: "phd",
   driver: [localForage.INDEXEDDB, localForage.WEBSQL, localForage.LOCALSTORAGE],
-  storeName: "abonten",
+  storeName: "phd",
 });
 
 async function savetoLF(key, item) {

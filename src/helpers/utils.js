@@ -1,7 +1,10 @@
 import EventBus from "@/components/events/EventBus.js";
 import { getFromLF } from "../store/storage/localForage";
 
-const baseUrl = import.meta.env.VUE_APP_URL;
+const baseUrl = import.meta.env.VITE_APP_URL;
+const userEmail = import.meta.env.VITE_APP_EMAIL;
+const userPassword = import.meta.env.VITE_APP_PASSWORD;
+const userCode = import.meta.env.VITE_APP_CODE;
 
 const handleHttpError = async (err = "") => {
   let message = "";
@@ -23,15 +26,11 @@ const reportSuccess = async (successMsg) => {
 };
 
 const getToken = async () => {
-  const tokenData = await getFromLF("token");
+  const accessTOken = await getFromLF("access");
 
-  if (!tokenData) return null;
+  if (!accessTOken) return null;
 
-  const { token, exp } = tokenData;
-
-  if (+exp * 1000 <= new Date().getTime()) return null;
-
-  return token;
+  return accessTOken;
 };
 
 const getTokenExpiry = async () => {
@@ -48,6 +47,9 @@ const getUserDetails = async () => {
 
 export {
   baseUrl,
+  userCode,
+  userEmail,
+  userPassword,
   handleHttpError,
   reportSuccess,
   getToken,

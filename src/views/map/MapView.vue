@@ -7,7 +7,7 @@
       <span>Bounds: {{ bounds }}</span>
     </div>
     <l-map
-      style="height: 80%; width: 100%"
+      style="height: 800px; width: 100%"
       :zoom="zoom"
       :center="center"
       @update:zoom="zoomUpdated"
@@ -21,6 +21,7 @@
 
 <script>
 import {LMap, LTileLayer} from 'vue2-leaflet';
+import { mapActions } from "vuex";
 
 export default {
   components: {
@@ -38,6 +39,13 @@ export default {
     };
   },
   methods: {
+    ...mapActions({
+      login: "auth/login",
+      fetchAllLines: "lines/fetchAllLines"
+      }),
+
+  // ...mapActions(["login"]),
+
     zoomUpdated (zoom) {
       this.zoom = zoom;
     },
@@ -47,6 +55,11 @@ export default {
     boundsUpdated (bounds) {
       this.bounds = bounds;
     }
+  },
+  async mounted(){
+    //  await this.login()
+   const lines = await this.fetchAllLines()
+   console.log(lines);
   }
 }
 </script>
