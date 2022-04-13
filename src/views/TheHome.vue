@@ -1,9 +1,13 @@
 <template>
-  <h3>Home</h3>
+ <map-view></map-view>
 </template>
 
 <script>
+import MapView from "./map/MapView.vue"
 export default {
+  components:{
+    MapView
+  }
 
 }
 </script>
